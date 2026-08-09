@@ -63,6 +63,8 @@ Then, grab a Phillips screwdriver, a USB drive, and a USB-to-UART adapter.
 
 Hook up the USB-UART adapter, grab a copy of the stock root squashfs (or kernel, if it fails to reach it), and [flash it](http://docs.u-boot.org/en/v2024.10/usage/dfu.html) from the USB drive. 
 
+On the Lorex units, there is only 1 4-position 2.5mm-pitched "dupont"-compatible header. That header handles UART. 2 of the pins are TX/RX, 1 is GND, 1 is omitted. The order is usually [data][data][gnd][+4v], but you'll have to do some experimenting. It's not much work, though - 1 of the outer pins can be ignored, and 1 adjacent to the other outer pin is also data. Have at it. Your baudrate is 115200. 
+
 Enter the u-boot command line by spamming `#rs` into the UART console during bootup. Then, for the rootfs, this is your command sequence:
 
 ``` 
