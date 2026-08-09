@@ -11,7 +11,8 @@ inclusion:
     src: submodules/curl/lib/.libs/libcurl.so.4.8.0
     dest: /usr/lib/libcurl.so.4.8.0
     needs: selfAcquire
-    acquire: "./configure --host=arm-hisiv100-linux-uclibcgnueabi CC='$CC'  LDFLAGS='-L$SYSROOT/lib -L$SYSROOT/usr/lib -Wl,-rpath-link,$SYSROOT/lib -Wl,-rpath-link,$SYSROOT/usr/lib' --without-ssl --without-libpsl  --without-zlib --without-brotli --without-zstd  --without-libidn2 --without-nghttp2 --without-libssh2  --disable-ldap --disable-ldap; make; $TC/arm-hisiv100-linux-uclibcgnueabi-strip -o ./lib/.libs/libcurl.so.4.8.0 ./lib/.libs/libcurl.so.4.8.0"
+    wd: submodules/curl
+    acquire: "autoreconf -fi && ./configure --host=arm-hisiv100-linux-uclibcgnueabi CC=\"$CC\"  LDFLAGS=\"-L$SYSROOT/lib -L$SYSROOT/usr/lib -Wl,-rpath-link,$SYSROOT/lib -Wl,-rpath-link,$SYSROOT/usr/lib\" --without-ssl --without-libpsl  --without-zlib --without-brotli --without-zstd  --without-libidn2 --without-nghttp2 --without-libssh2  --disable-ldap --disable-ldap && make && $TC/arm-hisiv100-linux-uclibcgnueabi-strip ./lib/.libs/libcurl.so.4.8.0"
   libcurl4:
     src: submodules/curl/lib/.libs/libcurl.so.4
     dest: /usr/lib/libcurl.so.4

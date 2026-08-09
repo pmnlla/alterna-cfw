@@ -1,13 +1,34 @@
+#!/bin/bash -x
+set -euo pipefail
+
 BLOCKSIZE=65536
 COMPRESSION="xz"
 VERSION=$(git describe --always --dirty)
 
+in_array () {
+    local somearray=${1}[@]
+    shift
+    for SEARCH_VALUE in "$@"; do
+        FOUND=false
+        for ARRAY_VALUE in ${!somearray}; do
+            if [[ $ARRAY_VALUE == $SEARCH_VALUE ]]; then
+                FOUND=true
+                break
+            fi
+        done
+        if ! $FOUND; then
+            return 1
+        fi
+    done
+    return 0
+}
+
 prereq() {
     for file in "${ROOTS[@]}"; do
         if [ -f "roots/$file" ]; then
-            echo "$file exists.";
+            ../tooling/glorify.sh alert info "$file exists.";
         else
-            echo "$file is missing. Re-extracting";
+            ../tooling/glorify.sh alert info "$file is missing. Re-extracting";
             mkdir roots;
             cp ../firmware.bin .
             ln -s ../tooling .
@@ -16,26 +37,50 @@ prereq() {
         fi
     done;
     if [ ! -d "../rootfs" ]; then
-        echo "Rootfs not found. Extracting...";
+        ../tooling/glorify.sh alert info  "Rootfs not found. Extracting...";
         unsquashfs -d ../rootfs roots/Squashfs_rootfs_1;
     fi
 }
 
 include() {
-    yq ".inclusion[] | [.src, .dest, .] | @tsv " ../sys/inclusions.yaml | while IFS=$'\t' read -r src dest; do
-        cp ../$src rootfs$dest
-        echo "Copied $src to $dest"
-    done
+    built=()
+    while IFS=$'\t' read -r key src dest needs deps wd; do
+        if [[ "$src" == "NULL" || "$dest" == "NULL" ]]; then
+            ../tooling/glorify.sh alert info  "Skipping $key: stub entry (no src/dest)"
+            continue
+        fi
+        in_array_result=0
+        in_array built $deps || in_array_result=$?
+        if [[ "$needs" == "NULL" && ( "$deps" == "NULL" || $in_array_result -eq 0 ) ]]; then # this is an artifact with no additional requirements!
+            cp -d ../$src rootfs$dest
+            ../tooling/glorify.sh alert info  "Copied $src to $dest"
+            built+=($key)
+        elif [[ $needs == "selfAcquire"  && ( "$deps" == "NULL" || $in_array_result -eq 0 ) ]]; then
+            # fetched by key, not via @tsv: shell quoting in acquire survives intact
+            acquire=$(yq ".inclusion.$key.acquire" ../sys/inclusions.yaml)
+            # acquire runs in the artifact's own source tree, not build/
+            if ! (cd "../$wd" && bash -c "$acquire"); then
+                ../tooling/glorify.sh alert error  "DID NOT BUILD $src: acquire failed!"
+                exit 1
+            fi
+            cp -d ../$src rootfs$dest
+            ../tooling/glorify.sh alert info  "Copied $src to $dest"
+            built+=($key)
+        else
+            ../tooling/glorify.sh alert error  "DID NOT BUILD $src: deps missing!"
+            exit 1
+        fi    
+    done < <(yq '.inclusion | to_entries[] | [.key, (.value.src // "NULL"), (.value.dest // "NULL"), (.value.needs // "NULL"), (.value.deps // "NULL"), (.value.wd // ".")] | @tsv' ../sys/inclusions.yaml)
 }
 
 pack_squash() {
-    rm -rf rootfs;
-    rm roots/4_Squashfs_rootfs
+    rm -rf rootfs || true;
+    rm roots/4_Squashfs_rootfs || true;
     cp -r ../rootfs .;
     echo $VERSION > rootfs/etc/hd/version
-    echo "Packing inclusions..."
+    ../tooling/glorify.sh alert info  "Packing inclusions..."
     include
-    echo "Creating root squashfs...."
+    ../tooling/glorify.sh alert info "Creating root squashfs...."
     mksquashfs rootfs/. roots/4_Squashfs_rootfs -comp $COMPRESSION -b $BLOCKSIZE
 }
 

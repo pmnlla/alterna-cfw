@@ -2,6 +2,10 @@ import argparse
 from enum import Enum
 import zlib
 import shutil
+from parts import *
+import sys
+
+uImageLocation = 0x1234
 
 class Endianess(Enum):
     BIG = 'big'
@@ -30,12 +34,14 @@ class Checksum:
 # currently only target 2104
 class UImageBodyChecksum(Checksum):
     def __init__(self):
-        super().__init__(Endianess.BIG, (0x3e1e4 + 0x18)) # 4 is the offset w/in the umage header for the header checksum
+        super().__init__(Endianess.BIG, (uImageLocation + 0x18)) # 4 is the offset w/in the umage header for the header checksum
     def Generate(self, path: str):
         try:
             with open(path, "rb") as image:
-                image.seek(self.location + (64 - 0x18)) # end of header
-                data = image.read(2447832)
+                image.seek(self.location - 0x18 + 0x0C)
+                size = int.from_bytes(image.read(4), "big")
+                image.seek(self.location + (64 - 0x18))
+                data = image.read(size)
                 csum = zlib.crc32(data)
                 print(f"Body csum = {hex(csum)}")
                 return csum
@@ -45,7 +51,7 @@ class UImageBodyChecksum(Checksum):
 
 class UImageHeaderChecksum(Checksum):
     def __init__(self):
-        super().__init__(Endianess.BIG, (0x3e1e4 + 0x4)) # 18 is the offset for body checksum
+        super().__init__(Endianess.BIG, (uImageLocation  + 0x4)) # 18 is the offset for body checksum
     def Generate(self, path: str):
         try:
             with open(path, "rb") as image:
@@ -87,7 +93,19 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--inject',
                     action='store_true')  # on/off flag
     parser.add_argument('-f', '--filename')
+    parser.add_argument('-m', '--model')
     args = parser.parse_args()
+
+    parts = parts_dummy
+    if args.model == "2104":
+        parts = parts_2104
+    elif args.model == "2108":
+        parts = parts_2108
+    else:
+        print("No model identified!")
+        sys.exit(1)
+    kernel = next(p for p in parts if p.name.endswith("_kernel"))
+    uImageLocation = kernel.offset
     checksums = [
         UImageBodyChecksum(),
         UImageHeaderChecksum(),

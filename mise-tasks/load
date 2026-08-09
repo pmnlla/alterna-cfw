@@ -19,6 +19,6 @@ if [ ! -f "$QUILT_PATCHES/series" ]; then
   exit 1
 fi
 
-quilt update
+quilt upgrade
 quilt push -a
 echo "Done! Patch loaded."

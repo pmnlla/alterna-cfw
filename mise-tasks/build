@@ -4,5 +4,5 @@ set -euo pipefail
 
 tooling/pack.sh rsup
 uv run tooling/fstable.py build/fsfollow build/update.bin
-uv run tooling/crc.py -i -f build/update.bin
+uv run tooling/crc.py -i -f build/update.bin -m 2104
 #rm -rf build/rootfs

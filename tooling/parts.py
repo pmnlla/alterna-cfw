@@ -10,6 +10,11 @@ class FirmwarePart:
 # oh and it also needs it defined since it's a 1 line cat command and REALLY stupid.
 # i'll tag the files properly eventually
 
+parts_dummy = [
+    FirmwarePart("Nil", 0, 0),
+    FirmwarePart('Nil', 0, 0)
+]
+
 parts_2104 = [
     # instead of binwalk, i went ahead and worked on decoding the inbuilt partition table in the RSUp header, following the magic string @ 0x00 
     FirmwarePart("0_RSUP_Header", 0x0, 0x398),

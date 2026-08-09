@@ -16,15 +16,15 @@ if [ $BLOB_TARGET = "44313130384e522d3332" ]; then
 elif [ $BLOB_TARGET = "44313130344e522d3332" ]; then
     TARGET_MODEL=2104;
     echo "Found LHA2104!!";
-fi
-
-if [[ -z $TARGET_MODEL ]]; then
+elif [[ -z $TARGET_MODEL ]]; then
     echo "Cannot determine target!";
     exit 1;
 fi
 
+echo $TARGET_MODEL > build/identity
+
 uv run tooling/extract.py $TARGET_MODEL "$1" build/roots
-if [ "$2" != "dont-unsquash-the-filesystem" ]; then
+if [[ "${2-nil}" != "dont-unsquash-the-filesystem" ]]; then
     ROOTFSIMAGE=$(ls build/roots/*_rootfs | head -n1); 
     unsquashfs -d rootfs -f $ROOTFSIMAGE;
     APPFSIMAGE=$(ls build/roots/*_app | head -n1);\
