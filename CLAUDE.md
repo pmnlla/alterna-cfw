@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-HyperDiver is a custom firmware project for the Lorex LHA2104 DVR. The workflow centers on extracting the stock firmware blob, applying `quilt` patches to the extracted rootfs, and repackaging.
+Alterna is a custom firmware project for the Lorex LHA2104 DVR. The workflow centers on extracting the stock firmware blob, applying `quilt` patches to the extracted rootfs, and repackaging.
 
 ## Workflow Commands
 
