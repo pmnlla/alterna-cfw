@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEFAULT_PKG="dropbear curl"
+DEFAULT_PKG="dropbear"
 
 setup_opkg() {
     wget http://bin.entware.net/armv7sf-k3.2/installer/generic.sh -O /tmp/entware-setup-generic.sh
@@ -68,4 +68,9 @@ if [ "$1" = "passwd" ]; then
     else
         echo "Provide a password!"
     fi
+fi
+
+if [ "$1" = "disarm-watchdog" ]; then
+    himm 0x12070c00 0x1ACCE551   # unlock SP805 LOCK
+    himm 0x12070008 0x0          # CONTROL = 0 -> INTEN=0, RESEN=0, counter halts
 fi
