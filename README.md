@@ -17,13 +17,24 @@ I personally use it for go2rtc, since the client for these DVRs doesn't work any
 
 **On the topic of dependencies**
 
-This project depends on [mise-en-place](https://mise.jdx.dev) for dependency management, tooling, and build scripts. Set it up with:
+This project depends (not fully) on [mise-en-place](https://mise.jdx.dev) for dependency management, tooling, and build scripts. Set it up with:
 
 ```
 curl https://mise.run | sh # piping unknown scripts to shell always carries a risk. 
 ```
 
-Then clone the repository. (this is not a tutorial on how to use git :p )
+Then clone the repository. (this is not a tutorial on how to use git :p ).
+
+You'll also need to set up the following through your system's package management:
+
+- cmake
+- make
+- perl
+- xxd
+- bc
+- git
+- squashfs-progs
+- autoconf, automake, libtool
 
 Next, grab a copy of a **STOCK** firmware blob for your DVR. They're distributed by Lorex [here](https://www.lorextechnology.com/images/supportimages/supportarticles/firmware/Lorex_DVR_NVR_Firmware.pdf), drop it into the repository, and let's get going.
 
