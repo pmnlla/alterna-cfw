@@ -15,7 +15,7 @@ I personally use it for go2rtc, since the client for these DVRs doesn't work any
 
 ## Building from Source
 
-**Preliminary: Set up dependencies.**
+**On the topic of dependencies**
 
 This project depends on [mise-en-place](https://mise.jdx.dev) for dependency management, tooling, and build scripts. Set it up with:
 
