@@ -11,6 +11,8 @@ mkdir -p build; cd build
 mbedtls_rootfs="$(realpath ../../../rootfs)"
 mbedtls_ldflags="-L${mbedtls_rootfs}/lib -L${mbedtls_rootfs}/usr/lib -Wl,-rpath-link,${mbedtls_rootfs}/lib -Wl,-rpath-link,${mbedtls_rootfs}/usr/lib"
 
+uv pip install scripts/basic.requirements.txt
+
 HOSTCC=cc cmake --fresh .. \
     -DCMAKE_SYSTEM_NAME=Linux \
     -DCMAKE_SYSTEM_PROCESSOR=arm \
