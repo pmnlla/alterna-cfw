@@ -92,7 +92,7 @@ if [ "$1" = "squash" ]; then
     pack_squash
 elif [ "$1" = "rsup" ]; then
     pack_squash
-    rm update.bin
+    rm -f update.bin # rm -f failures are silent, we take advantage of this :3
     echo "{" > ./fsfollow
     for i in $(ls roots/); do
         cat roots/$i >> update.bin;
