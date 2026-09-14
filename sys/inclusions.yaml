@@ -5,14 +5,19 @@ inclusion:
   tailscale_init_script:
     src: sys/util/s06tailscale_userspace_tun # from project source
     dest: /etc/init.d/S91tailscale_userspace_tun # in rootfs
-  mbedtls:
-    src:
+  libmbedtls420:
+    src: submodules/mbedtls/build/library/libmbedtls.so.4.2.0
+    dest: /usr/lib/libmbedtls.so.4.2.0
+    needs: selfAcquire
+    wd: .
+    acquire: "sh tooling/tasks/mbedtls"
+    # from hereon, with the remainder of mbedtls libs, the installation is handled by cmake.
   libcurl480:
     src: submodules/curl/lib/.libs/libcurl.so.4.8.0
     dest: /usr/lib/libcurl.so.4.8.0
     needs: selfAcquire
     wd: submodules/curl
-    acquire: "autoreconf -fi && ./configure --prefix=/usr --host=arm-hisiv100-linux-uclibcgnueabi CC=\"$CC\"  LDFLAGS=\"-L$SYSROOT/lib -L$SYSROOT/usr/lib -Wl,-rpath-link,$SYSROOT/lib -Wl,-rpath-link,$SYSROOT/usr/lib\" --without-ssl --without-libpsl  --without-zlib --without-brotli --without-zstd  --without-libidn2 --without-nghttp2 --without-libssh2  --disable-ldap --disable-ldap && make clean && make && $TC/arm-hisiv100-linux-uclibcgnueabi-strip ./lib/.libs/libcurl.so.4.8.0 ./src/.libs/curl"
+    acquire: "autoreconf -fi && ./configure --prefix=/usr --host=arm-hisiv100-linux-uclibcgnueabi CC=\"$CC\"  LDFLAGS=\"-L$SYSROOT/lib -L$SYSROOT/usr -Wl,-rpath-link,$SYSROOT/lib -Wl,-rpath-link,$SYSROOT/usr/lib\" --with-mbedtls=$SYSROOT/usr --without-libpsl  --without-zlib --without-brotli --without-zstd  --without-libidn2 --without-nghttp2 --without-libssh2  --disable-ldap --disable-ldap && make -j$(nproc )&& $TC/arm-hisiv100-linux-uclibcgnueabi-strip ./lib/.libs/libcurl.so.4.8.0 ./src/.libs/curl"
   libcurl4:
     src: submodules/curl/lib/.libs/libcurl.so.4
     dest: /usr/lib/libcurl.so.4

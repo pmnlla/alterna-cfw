@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#Basic build script for mbedtls
+
+set -eao pipefail
+
+FROM="submodules/mbedtls"
+
+cd $FROM
+mkdir -p build; cd build
+
+mbedtls_rootfs="$(realpath ../../../rootfs)"
+mbedtls_ldflags="-L${mbedtls_rootfs}/lib -L${mbedtls_rootfs}/usr/lib -Wl,-rpath-link,${mbedtls_rootfs}/lib -Wl,-rpath-link,${mbedtls_rootfs}/usr/lib"
+
+HOSTCC=cc cmake --fresh .. \
+    -DCMAKE_SYSTEM_NAME=Linux \
+    -DCMAKE_SYSTEM_PROCESSOR=arm \
+    -DCMAKE_C_COMPILER="$(realpath ../../../.toolchain/targets/arm-hisiv100-linux/bin/arm-hisiv100-linux-uclibcgnueabi-gcc)" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_EXE_LINKER_FLAGS="$mbedtls_ldflags" \
+    -DCMAKE_SHARED_LINKER_FLAGS="$mbedtls_ldflags" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DENABLE_PROGRAMS=OFF \
+    -DENABLE_TESTING=OFF \
+    -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+    -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+
+HOSTCC=cc cmake --build . --parallel "$(nproc)"
+
+for i in $(ls library/*.so*); do $TC/strip $i; done
+
+DESTDIR="$SYSROOT" cmake --install .

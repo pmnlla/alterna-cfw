@@ -4,6 +4,8 @@ uv = "latest"
 yq = "latest"
 
 [env]
-TC = "{{config_root}}/.toolchain/targets/arm-hisiv100-linux/bin"
-SYSROOT = "{{config_root}}/rootfs"
+TC = "{{config_root}}/.toolchain/targets/arm-hisiv100-linux/arm-hisiv100-linux-uclibcgnueabi/bin"
+SYSROOT = "{{config_root}}/build/rootfs"
 CC = "{{config_root}}/.toolchain/targets/arm-hisiv100-linux/bin/arm-hisiv100-linux-uclibcgnueabi-gcc"
+LD = "{{config_root}}/.toolchain/targets/arm-hisiv100-linux/bin/arm-hisiv100-linux-uclibcgnueabi-ld"
+STRIP = "{{config_root}}/.toolchain/targets/arm-hisiv100-linux/bin/arm-hisiv100-linux-uclibcgnueabi-strip"
